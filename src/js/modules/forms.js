@@ -1,8 +1,9 @@
 import { postData } from "../services/requests";
 
-const forms = () => {
+const forms = (state) => {
     const form = document.querySelectorAll('form'),
         input = document.querySelectorAll('input'),
+        select = document.querySelectorAll('select'),
         upload = document.querySelectorAll('[name="upload"]'),
         textarea = document.querySelectorAll('textarea');
 
@@ -25,6 +26,7 @@ const forms = () => {
             let name = item.files[0].name.split('.');
             name = name[0].length > 6 ? `${name[0].substring(0, 6)}...${name[1]}` : item.files[0].name;
             item.previousElementSibling.textContent = name;
+            item.parentElement.querySelector('button').textContent = name;
         });
     });
 
@@ -63,8 +65,12 @@ const forms = () => {
         });
         upload.forEach(item => {
             item.previousElementSibling.textContent = 'Файл не выбран';
+            item.parentElement.querySelector('button').textContent = 'Загрузите фотографию';
         });
         textarea.forEach(item => {
+            item.value = '';
+        });
+        select.forEach(item => {
             item.value = '';
         });
     };
@@ -76,6 +82,11 @@ const forms = () => {
             statusMessage(item, message.spinner, message.loading);
 
             const formData = new FormData(item);
+            if (item.getAttribute('data-calc') === 'calc') {
+                for (let key in state) {
+                    formData.append(key, state[key]);
+                }
+            }
 
             let api;
             item.closest('.popup-design') || item.classList.contains('calc_form') ? api = path.designer : api = path.question;
